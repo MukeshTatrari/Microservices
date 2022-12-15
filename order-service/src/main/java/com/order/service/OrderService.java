@@ -6,19 +6,27 @@ import com.order.common.TransactionResponse;
 import com.order.entity.Order;
 import com.order.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
 @Service
+@RefreshScope
 public class OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
 
     @Autowired
+    @Lazy
     private RestTemplate restTemplate;
+
+    @Value("${microservice.payment-service.endpoints.enpoint.url}")
+    private String endPointURL;
 
 
     public TransactionResponse save(TransactionRequest request) {
@@ -28,7 +36,7 @@ public class OrderService {
         payment.setAmount(order.getPrice());
 
         //rest call
-        Payment paymentResponse = restTemplate.postForObject("http://PAYMENT-SERVICE/payment/doPayment", payment, Payment.class);
+        Payment paymentResponse = restTemplate.postForObject(endPointURL, payment, Payment.class);
         String message = paymentResponse.getPaymentStatus().equals("Success") ?
                 "Payment Processing Successful and Order is Placed "
                 : "Payment Processing Failed and Order is Not Placed ";
