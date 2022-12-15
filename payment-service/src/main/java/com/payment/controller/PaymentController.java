@@ -1,5 +1,6 @@
 package com.payment.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.payment.entity.Payment;
 import com.payment.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,17 +16,16 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @GetMapping("/{orderId}")
-    public Payment findPaymentHistoryByOrderId(@PathVariable Integer orderId) {
+    public Payment findPaymentHistoryByOrderId(@PathVariable Integer orderId) throws JsonProcessingException {
 
         return paymentService.findPaymentHistoryByOrderId(orderId);
     }
 
     @PostMapping("/doPayment")
-    public Payment doPayment(@RequestBody Payment payment) {
+    public Payment doPayment(@RequestBody Payment payment) throws JsonProcessingException {
         return paymentService.savePayment(payment);
 
     }
-
 
 
 }

@@ -1,12 +1,18 @@
 package com.order.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.order.common.Payment;
 import com.order.common.TransactionRequest;
 import com.order.common.TransactionResponse;
 import com.order.entity.Order;
 import com.order.repository.OrderRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -16,6 +22,7 @@ import java.util.List;
 
 @Service
 @RefreshScope
+@Slf4j
 public class OrderService {
 
     @Autowired
@@ -28,8 +35,9 @@ public class OrderService {
     @Value("${microservice.payment-service.endpoints.enpoint.url}")
     private String endPointURL;
 
-
-    public TransactionResponse save(TransactionRequest request) {
+    Logger logger= LoggerFactory.getLogger(OrderService.class);
+    public TransactionResponse save(TransactionRequest request) throws JsonProcessingException {
+        logger.info("Order service Request :::: {} ", new ObjectMapper().writeValueAsString(request));
         Order order = request.getOrder();
         Payment payment = request.getPayment();
         payment.setOrderId(order.getId());
@@ -41,10 +49,13 @@ public class OrderService {
                 "Payment Processing Successful and Order is Placed "
                 : "Payment Processing Failed and Order is Not Placed ";
         orderRepository.save(order);
-        return new TransactionResponse(order,
+        TransactionResponse response = new TransactionResponse(order,
                 paymentResponse.getTransactionId(),
                 paymentResponse.getAmount(),
                 message);
+
+        logger.info("Order service Response :::: {} " , new ObjectMapper().writeValueAsString(response));
+        return response;
     }
 
     public List<Order> getAllOrders() {

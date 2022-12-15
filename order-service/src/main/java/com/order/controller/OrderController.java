@@ -1,5 +1,6 @@
 package com.order.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.order.common.TransactionRequest;
 import com.order.common.TransactionResponse;
 import com.order.service.OrderService;
@@ -18,7 +19,7 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping("/bookOrder")
-    public TransactionResponse saveOrder(@RequestBody TransactionRequest request) {
+    public TransactionResponse saveOrder(@RequestBody TransactionRequest request) throws JsonProcessingException {
         return orderService.save(request);
     }
 }
